@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobkit_dashed_border/mobkit_dashed_border.dart';
+import 'package:remind_task/data/model/request_model/task/task_request_model.dart';
 import 'package:remind_task/style/color_style.dart';
 
 import '../../route/route_name.dart';
@@ -15,7 +17,7 @@ class DetailTaskScreen extends StatefulWidget {
 }
 
 class _DetailTaskScreenState extends State<DetailTaskScreen> {
-  Map<String, dynamic> detailDataTask = {};
+  TaskModel? detailDataTask;
 
   @override
   void initState() {
@@ -78,7 +80,7 @@ class _DetailTaskScreenState extends State<DetailTaskScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${detailDataTask['judul_task']}',
+                    '${detailDataTask!.judulTask}',
                     style: poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -92,36 +94,42 @@ class _DetailTaskScreenState extends State<DetailTaskScreen> {
                 ],
               ),
               Text(
-                '${detailDataTask['tanggal_mulai']} - ${detailDataTask['tanggal_selesai']}',
-                style: poppins(fontSize: 11.0, fontWeight: FontWeight.w500),
+                '${DateFormat("dd MMM yyyy").format(detailDataTask!.startedAt!)}'
+                ' - '
+                '${DateFormat("dd MMM yyyy").format(detailDataTask!.endedAt!)}',
+                style: poppins(
+                  fontSize: 11.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black45,
+                ),
               ),
               Text(
-                '${detailDataTask['deskripsi_task']}',
+                '${detailDataTask!.deskripsiTask}',
                 style: poppins(fontSize: 12.0, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 5.0),
-              SizedBox(
-                height: 30.0,
-                child: ListView.builder(
-                  itemCount: 4,
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (ctx, i) {
-                    return InkWell(
-                      onTap: () {},
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10.0),
-                        height: 30.0,
-                        width: 30.0,
-                        decoration: BoxDecoration(
-                          color: Colors.black12,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              // SizedBox(
+              //   height: 30.0,
+              //   child: ListView.builder(
+              //     itemCount: 4,
+              //     scrollDirection: Axis.horizontal,
+              //     padding: EdgeInsets.zero,
+              //     itemBuilder: (ctx, i) {
+              //       return InkWell(
+              //         onTap: () {},
+              //         child: Container(
+              //           margin: const EdgeInsets.only(right: 10.0),
+              //           height: 30.0,
+              //           width: 30.0,
+              //           decoration: BoxDecoration(
+              //             color: Colors.black12,
+              //             shape: BoxShape.circle,
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
               const SizedBox(height: 10.0),
               Text(
                 'Task List',
@@ -129,17 +137,37 @@ class _DetailTaskScreenState extends State<DetailTaskScreen> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: detailDataTask['list_task'].length,
+                  itemCount: detailDataTask!.subTask!.length,
                   padding: EdgeInsets.zero,
                   itemBuilder: (ctx, i) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 5.0, left: 2.0),
-                      child: Text(
-                        '${i + 1}. ${detailDataTask['list_task'][i]['nama_task']}',
-                        style: poppins(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${i + 1}. ${detailDataTask!.subTask![i].isiSubTask}',
+                            style: poppins(
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            detailDataTask!.subTask![i].isCompleted == true
+                                ? 'Done'
+                                : '',
+                            style: poppins(
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.w500,
+                              color:
+                                  detailDataTask!.subTask![i].isCompleted ==
+                                      true
+                                  ? Colors.green
+                                  : ColorsStyle.truffleTrouble,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -152,7 +180,10 @@ class _DetailTaskScreenState extends State<DetailTaskScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Get.toNamed(RouteName.editTask);
+                      Get.toNamed(
+                        RouteName.editTask,
+                        arguments: {'edit_data_task': detailDataTask},
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorsStyle.oatmealModif,

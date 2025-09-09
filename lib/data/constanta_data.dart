@@ -23,4 +23,6 @@ class ConstantaData {
       'controller': TextEditingController(),
     },
   ];
+
+  static String baseUrl = 'https://mitradayasolusi.com/remind_task';
 }
